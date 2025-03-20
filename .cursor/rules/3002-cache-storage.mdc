@@ -1,0 +1,35 @@
+---
+description: "Cache repeated SLOAD in local memory when using the same state variable multiple times to save gas."
+globs: **/*.sol
+alwaysApply: false
+---
+
+# Cache Repeated SLOAD
+
+<version>1.0.0</version>
+
+## Context
+- Functions reading the same state variable multiple times
+- Loop or repeated checks on a single state variable
+
+## Requirements
+- MUST read state variable once into a local variable
+- MUST reuse the local variable instead of multiple SLOADs
+
+## Examples
+<example>
+// ✅ Good: single storage load, then local usage
+function increment() external {
+  uint256 x = count; // one SLOAD
+  x++;
+  count = x;         // one SSTORE
+}
+</example>
+
+<example type="invalid">
+// ❌ Bad: multiple SLOADs in one function
+function increment() external {
+  count = count + 1; 
+  require(count < 100, "Too high");
+}
+</example>

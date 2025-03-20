@@ -1,0 +1,34 @@
+---
+description: "Pack multiple small variables when they fit into 256 bits to reduce storage slot usage."
+globs: **/*.sol
+alwaysApply: false
+---
+
+# Struct & Slot Packing
+
+<version>1.0.0</version>
+
+## Context
+- Multiple state variables smaller than 256 bits (e.g. bool, uint8, address)
+- Data stored contiguously in storage
+
+## Requirements
+- MUST group small types to fit into a single 256-bit slot
+- SHOULD use structs for related fields to improve readability
+
+## Examples
+<example>
+// ✅ Good: packing bool and uint8 together
+struct UserData {
+  bool isActive;
+  uint8 level;
+  uint240 padding;
+}
+</example>
+
+<example type="invalid">
+// ❌ Bad: single-slot types spread across multiple variables
+bool isActive;
+uint8 level;
+uint240 padding;
+</example>

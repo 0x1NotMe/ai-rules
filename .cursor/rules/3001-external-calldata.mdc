@@ -1,0 +1,32 @@
+---
+description: 
+globs: **/*.sol
+alwaysApply: false
+---
+
+# Use External & Calldata for Read-Only Params
+
+<version>1.0.0</version>
+
+## Context
+- Applies to functions that do not require internal calls
+- Parameters not modified in function body
+
+## Requirements
+- MUST declare functions as `external` if they are never called internally
+- MUST declare reference-type parameters (e.g. arrays) as `calldata` if only read
+
+## Examples
+<example>
+// ✅ Good: external function with calldata param
+function batchTransfer(address[] calldata recipients) external {
+  // Logic using recipients without modifying it
+}
+</example>
+
+<example type="invalid">
+// ❌ Bad: public function copying entire array to memory
+function batchTransfer(address[] memory recipients) public {
+  // ...
+}
+</example>

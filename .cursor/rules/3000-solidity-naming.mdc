@@ -1,0 +1,60 @@
+---
+description: "Enforce naming conventions for functions & variables in Task Manager DApp to maintain consistency."
+globs: packages/contracts/**/*.sol,*.sol
+alwaysApply: false
+---
+
+# Solidity Naming
+
+<version>1.0.0</version>
+
+## Context
+- Applies to all Solidity
+- Ensures consistent, readable, and maintainable code
+
+## Requirements
+- External functions MUST use `camelCase` (e.g., `transferTask()`)
+- Internal/private functions MUST use `_underscoreCamelCase` (e.g., `_calculateReward()`)
+- Storage Public variables MUST use `S_PascalCase` (e.g., `S_TaskCount`)
+- Storage Internal variables MUST use `s_camelCase` (e.g., `s_totalRewards`)
+- Transient Public variables (temporary in a function) MUST use `T_PascalCase` (e.g., `T_CurrentTime`)
+- Transient Internal variables (temporary) MUST use `t_camelCase` (e.g., `t_balance`)
+- Global constants MUST use `UPPER_CASE` (e.g., `MAX_TASKS`)
+- Internal constants MUST use `_UPPER_CASE` (e.g., `_BASE_FEE`)
+- Internal local variables MUST use `_variableName`
+
+## Examples
+<example>
+// ✅ Good: Follows all naming conventions
+uint256 constant MAX_TASKS = 1000;
+uint256 internal constant _BASE_FEE = 10;
+
+uint256 public S_TaskCount;
+uint256 internal s_lastTaskId;
+
+function createTask(string calldata _taskName) external returns (uint256 T_NewId) {
+  uint256 t_tempVar = s_lastTaskId + 1;
+  s_lastTaskId = t_tempVar;
+  S_TaskCount++;
+  return t_tempVar;
+}
+
+function _calculateReward() internal view returns (uint256) {
+  // ...
+}
+</example>
+
+<example type="invalid">
+// ❌ Bad: Inconsistent naming
+uint256 public taskCount;
+uint256 internal LastTaskId;
+uint256 constant baseFee = 10;
+
+function CreateTask(string calldata taskName) public {
+  // ...
+}
+
+function calculateReward() private {
+  // ...
+}
+</example>

@@ -1,0 +1,30 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+## Purpose
+These instructions guide the agent to document relevant details for each active task and maintain up-to-date records of high-level architecture changes.
+
+## Documentation Guidelines
+
+1. **docs/plan.md**
+   - **Task-Focused Updates**: For each new or ongoing task, summarize key actions, decisions, and progress here.
+   - **Granularity**: Capture the “what” and “why” of the current task. Include concise notes on implementation approach, known blockers, and important rationale.
+   - **Frequency**: Update `docs/plan.md` at logical milestones rather than after every minor edit, to avoid unnecessary detail.
+
+2. **docs/architecture**
+   - **Big-Picture Scope**: Record overarching or structural changes that affect how the application is organized or how its components interact.
+   - **When to Update**: Only update `docs/architecture.md` if a change significantly impacts the global design, framework choices, or major project boundaries.
+   - **High-Level Detail**: Keep this file focused on large-scale decisions and architectural rationale. Avoid duplicating low-level code examples or minor details.
+
+3. **Avoid Duplication**
+   - **Code/Framework Rules**: Any language- or framework-specific rules are handled by separate glob-based instructions. Do not repeat them in these docs.
+   - **Single Source of Truth**: If an explanation exists in one doc file, reference it rather than restating it in another.
+
+## Best Practices
+
+- **Clarity Over Volume**: Provide just enough information for the team to understand each change’s intent, without overwhelming them with trivial updates.
+- **Respect Task Boundaries**: Only include updates relevant to the current task in `docs/plan.md`. If a change has architectural impact, note it in `docs/architecture`.
+- **Ask When Unsure**: If you’re uncertain whether a change belongs in `docs/plan.md` or `docs/architecture`, seek clarification.
+- **Minimal Interruption**: Avoid constant notifications. Document in batches or upon completing a discrete chunk of work.

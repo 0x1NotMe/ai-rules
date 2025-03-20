@@ -1,0 +1,40 @@
+---
+description: "Deploy minimal proxy when reusing contract logic to lower deployment costs."
+globs: 
+alwaysApply: false
+---
+
+# Use Minimal Proxy (EIP-1167) for Clones
+
+<version>1.0.0</version>
+
+## Context
+- Repeated contract deployments with identical logic
+- Desire to minimize deployment gas
+
+## Requirements
+- MUST implement EIP-1167 minimal proxy pattern if contract logic is cloned
+- MUST initialize each proxy instance properly (no constructor code)
+
+## Examples
+<example>
+// ✅ Good: using OpenZeppelin Clones library for cheap instance creation
+import "@openzeppelin/contracts/proxy/Clones.sol";
+
+contract Factory {
+  address implementation;
+
+  function createClone() external returns (address) {
+    address proxy = Clones.clone(implementation);
+    // Initialize proxy...
+    return proxy;
+  }
+}
+</example>
+
+<example type="invalid">
+// ❌ Bad: deploying full contracts repeatedly with duplicate logic
+contract AnotherInstance is BaseContract {
+  // Entire logic re-deployed for each instance
+}
+</example>
