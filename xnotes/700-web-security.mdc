@@ -1,0 +1,47 @@
+---
+description: @700 Must ALWAYS follow the steps outlined in this security checklist to maintain the application's integrity and safety.
+globs: 
+alwaysApply: false
+---
+## Security Checklist
+
+1. **Use a Trusted Third-Party Authentication Library**  
+   - Authentication is complex if built from scratch.  
+   - Rely on well-known libraries (e.g., [Clerk](mdc:https:/clerk.com)) for password hashing, session management, and multi-factor authentication (MFA).  
+   - This helps avoid reinventing secure authentication processes and ensures industry best practices.
+
+2. **Integrate Authentication for Protected Endpoints**  
+   - Verify user identity on **every request** to prevent unauthorized access.  
+   - Choose an auth library with a robust SDK (like Clerk) for easily safeguarding routes and validating user credentials.  
+   - Protecting endpoints reduces the risk of DDoS and other attacks.
+
+3. **Never Expose Sensitive Information on the Client Side**  
+   - Avoid hardcoding secrets (API keys, database credentials, encryption keys) in client-side code.  
+   - Keep sensitive data in environment variables (`.env` files) on the server.  
+   - Ensure they are **never** accessed or sent to the client.
+
+4. **Exclude Sensitive Files from Version Control**  
+   - `.env` (and similar) files contain critical secrets.  
+   - Add these files to `.gitignore` to prevent accidental pushes to public or shared repositories.
+
+5. **Sanitize Error Messages**  
+   - Raw error logs can reveal sensitive details (e.g., database structures).  
+   - Use **generic** or **user-friendly** messages on the client side.  
+   - Log detailed errors only on the server for debugging.
+
+6. **Secure Requests with Middleware Authentication**  
+   - Implement middleware that checks user authentication before each request.  
+   - Middleware serves as a protective layer, ensuring only authorized users access certain parts of your app.
+
+7. **Implement Role-Based Access Control (RBAC)**  
+   - Assign roles (e.g., admin, user, guest) to limit user privileges.  
+   - Restrict access to sensitive data and features based on assigned roles.
+
+8. **Use a Trusted Library for Database Interactions**  
+   - Raw SQL queries can open doors to SQL injection and other vulnerabilities.  
+   - Use an ORM (Object-Relational Mapping) or platforms like Supabase.  
+   - Some databases enforce authorization at the row level (RLS) for additional security.
+
+9. **Host on a Reputable Managed Platform**  
+   - Managed hosting providers (Vercel, AWS, Google Cloud) offer robust security features (firewalls, DDoS protection, automatic updates).  
+   - Leveraging these platforms reduces infrastructure management overhead and enhances overall security posture.
