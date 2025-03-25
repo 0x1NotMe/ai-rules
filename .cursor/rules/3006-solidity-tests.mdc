@@ -1,0 +1,43 @@
+---
+description: ENFORCE Foundry best practices in Solidity tests to ensure reliability
+globs: **/*.t.sol
+alwaysApply: false
+---
+
+# Foundry Tests Best Practices
+
+<version>1.0.0</version>
+
+## Context
+- Applied to all test contracts (`*.t.sol`)
+- Based on Foundry’s recommended best practices
+
+## Requirements
+1. Use descriptive naming:
+   - Follow `test_FunctionDescription` or `testFork_...` patterns
+   - Group tests logically (e.g. `MyContract.owner.t.sol`)
+2. Never place assertions in `setUp`; instead, create a dedicated test.
+3. Keep tests short and focused:
+   - Write positive and negative scenarios
+   - Avoid mixing multiple features in one test
+4. Expose `internal` methods via harness contracts for detailed unit testing.
+5. Prefer forging local forks to mocks where possible (cache RPC calls for performance).
+
+## Examples
+<example>
+// ✅ Good: Clear test naming and short, focused checks
+function test_add_Succeeds() public {
+  uint256 result = myContract.add(2, 3);
+  assertEq(result, 5, "Addition test");
+}
+</example>
+
+<example type="invalid">
+// ❌ Bad: Mixed features tested in one function, naming unclear
+function testAllTheThings() public {
+  myContract.deposit();
+  myContract.withdraw();
+  myContract.redeem();
+  // ...
+}
+</example>

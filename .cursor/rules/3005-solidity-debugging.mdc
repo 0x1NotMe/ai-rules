@@ -1,0 +1,36 @@
+---
+description: ENFORCE console.log usage guidelines for debugging or troubleshooting
+globs: 
+alwaysApply: false
+---
+
+# Console Logs Usage
+
+<version>1.1.0</version>
+
+## Context
+- Used in Solidity test contracts
+- Requires `import {console} from forge-std/console.sol`
+- Supports up to 4 parameters: `uint`, `int`, `bool`, `address`, `string`, and `bytesX`
+
+## Requirements
+1. Use `console.log` **only** for debugging/troubleshooting.
+2. **Do not** replace logs with events—avoid event-based logging in tests.
+3. Follow usage limits:
+   - Up to 4 parameters in any order.
+   - Single-parameter variants (e.g. `console.logUint`) available for specific types.
+4. Avoid chained string concatenation beyond `"test" + value`.
+5. Respect format specifiers (`%s`, `%d`, etc.) as needed.
+
+## Examples
+<example>
+// ✅ Good: Basic usage for debugging (no excessive concatenation)
+console.log("Current owner: %s", owner);
+console.logUint(balance);
+</example>
+
+<example type="invalid">
+// ❌ Overuse and forbidden chaining
+console.log("test" + value + "test");
+emit DebugEvent("Logging from test");
+</example>
