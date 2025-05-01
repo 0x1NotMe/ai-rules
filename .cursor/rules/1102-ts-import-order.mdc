@@ -1,0 +1,33 @@
+---
+description: Sort imports alphabetically when saving to reduce merge conflicts
+globs: **/*.ts,**/*.tsx
+alwaysApply: false
+---
+# Deterministic Import Order
+
+<version>1.0.0</version>
+
+## Context
+- Top-level ES module import statements
+
+## Requirements
+- Group: builtin → external → internal paths
+- Within each group, sort alphabetically (case-insensitive)
+- Blank line between groups
+- Enforced via `eslint-plugin-import` → `import/order`
+
+## Examples
+<example>
+import fs from 'fs';
+
+import React from 'react';
+import type { FC } from 'react';
+
+import Button from '@/components/Button';
+</example>
+
+<example type="invalid">
+import Button from '@/components/Button';
+import fs from 'fs';
+import React from 'react';
+</example>

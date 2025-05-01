@@ -1,0 +1,54 @@
+---
+description: Use as const assertions to prevent type widening and create readonly tuples for safer code
+globs: **/*.ts,**/*.tsx
+alwaysApply: false
+---
+# Prefer Const Assertions for Literals
+
+## Context
+- When defining arrays or objects of literal values that should not be widened
+- When creating type-safe constants for use in type definitions
+- When ensuring immutability of data structures at compile time
+
+## Requirements
+- Append `as const` to literal arrays/objects that represent fixed sets of values
+- Use `typeof` with indexed access to derive union types from const-asserted arrays
+- Remember that const assertions create readonly structures
+
+## Examples
+<example>
+```ts
+// With const assertion:
+const BUTTON_VARIANTS = ["primary", "secondary"] as const;
+// type: readonly ["primary", "secondary"]
+
+type ButtonVariant = typeof BUTTON_VARIANTS[number]; 
+// type: "primary" | "secondary"
+
+// Object with const assertion:
+const THEME = {
+  colors: {
+    primary: '#0070f3',
+    secondary: '#ff4081'
+  }
+} as const;
+// All properties are readonly and have literal types
+```
+This preserves literal types and prevents accidental mutation.
+</example>
+
+<example type="invalid">
+```ts
+// Without const assertion:
+const BUTTON_VARIANTS = ["primary", "secondary"]; 
+// type: string[] (loses specific values)
+
+// Trying to create a union type from non-const array:
+type ButtonVariant = typeof BUTTON_VARIANTS[number]; 
+// type: string (not "primary" | "secondary")
+
+// Can be mutated:
+BUTTON_VARIANTS.push("tertiary"); // Allowed but breaks assumptions
+```
+This approach loses literal type information and allows array mutation.
+</example>

@@ -1,0 +1,77 @@
+---
+description: Define runtime schemas with Zod to validate external data while inferring TypeScript types
+globs: **/*.ts,**/*.tsx
+alwaysApply: false
+---
+# Type-Safe Error Handling
+
+## Context
+- When working with any code that can throw exceptions
+- When developing libraries or utilities with predictable error handling
+- When integrating with external APIs or parsing user input
+
+## Requirements
+- Type catch clause variables as `unknown` instead of `any` or `Error`
+- Use type narrowing (e.g., `instanceof Error`) to safely handle errors
+- Consider returning discriminated unions (`{ ok: T } | { error: E }`) for expected failures
+- Always handle or rethrow unknown errors to avoid silent failures
+
+## Examples
+<example>
+```ts
+// Safe error handling with unknown:
+try {
+  riskyOperation();
+} catch (e: unknown) {
+  if (e instanceof Error) {
+    logError(e.message);
+  } else {
+    logError("Unknown error occurred", e);
+  }
+}
+
+// Result pattern for functions that can fail:
+function parseJson<T>(str: string): { ok: T } | { error: Error } {
+  try {
+    return { ok: JSON.parse(str) as T };
+  } catch (e: unknown) {
+    return { error: e instanceof Error ? e : new Error("Parse failed") };
+  }
+}
+
+// Using the Result pattern:
+const result = parseJson<UserData>(jsonString);
+if ("ok" in result) {
+  processUser(result.ok); // TypeScript knows this is UserData
+} else {
+  handleError(result.error); // TypeScript knows this is Error
+}
+```
+This approach forces explicit error handling and prevents type errors.
+</example>
+
+<example type="invalid">
+```ts
+// Unsafe error handling with any:
+try {
+  riskyOperation();
+} catch (e) {
+  // TypeScript doesn't know if e has message property
+  console.error(e.message); // Potential runtime error
+}
+
+// Using exception throwing for expected failures:
+function parseJson<T>(str: string): T {
+  return JSON.parse(str) as T; // Throws on invalid JSON
+}
+
+// Caller must always use try/catch:
+try {
+  const data = parseJson<UserData>(jsonString);
+  processUser(data);
+} catch (e) {
+  // Handling is separate from function call
+}
+```
+This approach allows unsafe access to error properties and separates errors from return flow.
+</example>

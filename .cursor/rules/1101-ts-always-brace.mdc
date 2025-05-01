@@ -1,0 +1,28 @@
+---
+description: Enforce braces when control statements to avoid logic errors
+globs: **/*.ts,**/*.tsx
+alwaysApply: false
+---
+# Always-Brace Control Statements
+
+<version>1.0.0</version>
+
+## Context
+- Any `if`/`else`, `for`, `while`, or `do…while` block
+
+## Requirements
+- Wrap the body of every control statement in `{}` even if single-line
+- No single-line `if (x) doSomething()` patterns
+- Auto-fixable by ESLint `curly: "all"`
+
+## Examples
+<example>
+if (ready) {
+  start();
+}
+</example>
+
+<example type="invalid">
+if (ready) start();
+</example>
+

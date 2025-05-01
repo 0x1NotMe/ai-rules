@@ -1,0 +1,78 @@
+---
+description: ENFORCE documentation standards in Solidity contracts to balance clarity with conciseness
+globs: 
+alwaysApply: false
+---
+
+# Solidity Documentation Standards
+
+<version>1.0.0</version>
+
+## Context
+- Applies to all Solidity smart contracts
+- Balances detailed technical documentation with readability
+- Preserves critical implementation details while avoiding verbosity
+
+## Requirements
+
+1. Documentation Format
+   - Use multi-line format `/** */` for all NatSpec comments
+   - Maintain consistent indentation within comment blocks
+   - Use `@inheritdoc` for interface implementations when appropriate
+
+2. Contract-Level Documentation
+   - Title and author
+   - One-line notice explaining core functionality
+   - Brief dev notes for key technical details
+   - No tutorial-style explanations
+
+3. Function Documentation
+   - External/public: document parameters, return values, and key behaviors
+   - Internal/private: focus on implementation details and edge cases
+   - Keep implementation notes focused on non-obvious technical aspects
+
+4. Complex Mechanism Documentation
+   - Document in numbered sections
+   - Include purpose, parameters, mechanism, integration
+   - Focus on technical implementation rather than usage guides
+   - Place in relevant contract section
+
+## Examples
+
+<example>
+/** 
+ * @dev Top-Up Mechanism Design:
+ *
+ * 1. Purpose:
+ *    - Maintains minimum bonded balance
+ *    - Prevents operational disruption
+ *
+ * 2. Parameters:
+ *    - minBonded: Minimum balance threshold
+ *    - maxTopUpPerPeriod: Auto-bonding limit
+ *
+ * 3. Integration:
+ *    - Triggered in _spendFromBonded
+ *    - Configurable via setMinBondedBalance
+ */
+</example>
+
+<example type="invalid">
+/**
+ * @dev Top-Up System
+ *
+ * This system helps users manage their bonded balance by automatically
+ * topping up when needed. Users can configure various settings to control
+ * how the system behaves. When a user's balance gets low, the system will
+ * automatically add more tokens from their unbonded balance.
+ *
+ * To use this system, first call setMinBondedBalance with your desired
+ * parameters. The system will then monitor your balance and...
+ */
+</example>
+
+<critical>
+- Documentation MUST focus on technical implementation, not usage guides
+- Complex mechanisms require structured sections but remain concise
+- Preserve all critical technical details while removing tutorial content
+</critical>

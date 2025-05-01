@@ -1,0 +1,74 @@
+---
+description: Design custom hooks and utilities with generics to improve type inference and reusabilityDesign custom hooks and utilities with generics to improve type inference and reusability
+globs: **/*.ts,**/*.tsx
+alwaysApply: false
+---
+# Generic Hooks and Utilities
+
+## Context
+- When creating custom React hooks that work with various data types
+- When building reusable utility functions that should maintain type information
+- When consuming typed APIs like fetching or form libraries
+
+## Requirements
+- Add generic type parameters to hooks and utilities that handle different data types
+- Use generics in return types to preserve type information
+- Leverage TypeScript utility types (ReturnType, Parameters, etc.) where appropriate
+- Consider type inference in function parameter design
+
+## Examples
+<example>
+```ts
+import { useState, useEffect } from 'react';
+
+// Generic fetch hook with strong typing
+function useFetch<T>(url: string): [T | null, boolean, Error | null] {
+  const [data, setData] = useState<T | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+  
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(url);
+        const json = await response.json();
+        setData(json as T);
+      } catch (e) {
+        setError(e instanceof Error ? e : new Error(String(e)));
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchData();
+  }, [url]);
+  
+  return [data, loading, error];
+}
+
+// Usage with strong typing:
+interface User { id: number; name: string; }
+const [user, loading, error] = useFetch<User>('/api/user/1');
+// user has type User | null
+```
+This provides type safety and autocompletion for hook return values.
+</example>
+
+<example type="invalid">
+```ts
+// Non-generic hook loses type information
+function useFetch(url: string): [any, boolean, Error | null] {
+  // Implementation...
+  return [data, loading, error];
+}
+
+// Usage requires manual type casting:
+const [user, loading, error] = useFetch('/api/user/1') as [User, boolean, Error];
+
+// Or worse, loosely typed usage:
+const [user, loading, error] = useFetch('/api/user/1');
+user.id; // No type error even if data is null or doesn't have id property
+```
+This approach either requires manual type casting or allows type errors at runtime.
+</example>

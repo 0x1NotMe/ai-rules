@@ -1,0 +1,52 @@
+---
+description: Create string literal union types using template literals instead of manual string unions
+globs: **/*.ts,**/*.tsx
+alwaysApply: false
+---
+# Use Template Literal Types for Patterned Strings
+
+## Context
+- When defining string types that follow specific patterns
+- When combining existing union types to create new ones
+- When enforcing string format consistency at compile-time
+
+## Requirements
+- Use template literal syntax in type definitions (e.g. `type Route = `/${string}`)
+- Combine union types within template literals to generate all combinations
+- Prefer template literal types over manual string unions for scalability
+
+## Examples
+<example>
+```ts
+// Define basic union types:
+type Locale = "en" | "fr" | "es";
+type Page = "home" | "about" | "contact";
+
+// All valid route paths like "/en/home":
+type Route = `/${Locale}/${Page}`;
+// Expands to: "/en/home" | "/en/about" | "/en/contact" | "/fr/home" | etc.
+
+// Using for CSS class variants:
+type Size = "sm" | "md" | "lg";
+type Variant = "primary" | "secondary";
+type ButtonClass = `btn-${Size}-${Variant}`;
+```
+This generates all valid combinations at compile time, ensuring only valid strings pass type checking.
+</example>
+
+<example type="invalid">
+```ts
+// Manually defining all combinations (error-prone):
+type Route = 
+  | "/en/home" | "/en/about" | "/en/contact"
+  | "/fr/home" | "/fr/about" | "/fr/contact"
+  | "/es/home" | "/es/about" | "/es/contact";
+
+// Using generic string (too permissive):
+type Route = string;
+const route: Route = "/invalid/page"; // No type error
+```
+This approach is either tedious and error-prone or allows invalid values to be used.
+</example>
+
+**Guideline:** Construct string types using template literals (e.g. `${Prefix}${Suffix}`) rather than using raw `string`

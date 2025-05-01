@@ -1,0 +1,54 @@
+---
+description: Use the satisfies operator to ensure objects match a type while preserving literal inference
+globs: **/*.ts,**/*.tsx
+alwaysApply: false
+---
+# Use `satisfies` for Type-Safe Configs
+
+## Context
+- When defining configuration objects that must conform to an interface
+- When you need both type checking and precise type inference
+- When working with Next.js data functions or Redux configurations
+
+## Requirements
+- Use `satisfies InterfaceType` instead of `: InterfaceType` for validation
+- Apply to object literals and functions that return objects
+- Ensure you're using TypeScript 4.9 or higher
+
+## Examples
+<example>
+```ts
+// Next.js example with satisfies:
+export const getStaticProps = (async () => {
+  return { 
+    props: { 
+      buildTime: Date.now() 
+    } 
+  };
+}) satisfies GetStaticProps<{ buildTime: number }>;
+
+// Config object example:
+const menuItem = {
+  label: "Save",
+  icon: "save-icon",
+  action: () => saveDocument()
+} satisfies MenuItem;
+```
+This ensures your objects match the required interface while maintaining precise type inference.
+</example>
+
+<example type="invalid">
+```ts
+// Type annotation loses literal types:
+const config: Config = {
+  mode: "development", // type is string, not "development"
+  port: 3000
+};
+
+// Without satisfies, you'd need redundant annotations:
+const getServerSideProps: GetServerSideProps<Props> = async () => {
+  return { props: { /* props with redundant types */ } };
+};
+```
+This approach either loses literal type information or requires redundant type annotations.
+</example>

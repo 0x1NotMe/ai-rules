@@ -1,0 +1,83 @@
+---
+description: Define runtime schemas with Zod to validate external data while inferring TypeScript types
+globs: **/*.ts,**/*.tsx
+alwaysApply: false
+---
+# Schema-Driven Types with Zod
+
+## Context
+- When handling external data (API responses, user input, etc.)
+- When implementing data validation that needs to be synchronized with TypeScript types
+- When working with Next.js data fetching functions or form libraries
+
+## Requirements
+- Define data schemas using Zod for validation and type generation
+- Use `z.infer<typeof Schema>` to derive TypeScript types from schema definitions
+- Validate data at runtime boundaries with schema.parse() or schema.safeParse()
+- Keep schema definitions as the single source of truth for both validation and types
+
+## Examples
+<example>
+```ts
+import { z } from "zod";
+
+// Define schema and infer type from it:
+const ProductSchema = z.object({
+  id: z.string().uuid(),
+  name: z.string().min(1),
+  price: z.number().positive(),
+  tags: z.array(z.string()).optional()
+});
+
+// Derive TypeScript type from schema:
+type Product = z.infer<typeof ProductSchema>;
+
+// Function that validates data at runtime:
+async function fetchProduct(id: string): Promise<Product> {
+  const res = await fetch(`/api/products/${id}`);
+  const data = await res.json();
+  return ProductSchema.parse(data); // Throws if invalid
+}
+
+// Safe parsing with error handling:
+function safeParseProduct(data: unknown): Product | null {
+  const result = ProductSchema.safeParse(data);
+  if (result.success) {
+    return result.data;
+  } else {
+    console.error(result.error);
+    return null;
+  }
+}
+```
+This ensures runtime validation matches compile-time types, preventing type mismatches.
+</example>
+
+<example type="invalid">
+```ts
+// Separate type definition and validation:
+interface Product {
+  id: string;
+  name: string;
+  price: number;
+  tags?: string[];
+}
+
+// Manual validation - prone to desynchronization with type:
+function validateProduct(data: unknown): Product {
+  const product = data as any;
+  if (!product.id || typeof product.id !== 'string') {
+    throw new Error('Invalid product ID');
+  }
+  // More validation...
+  return product as Product;
+}
+
+// Or worse - no validation:
+async function fetchProduct(id: string): Promise<Product> {
+  const res = await fetch(`/api/products/${id}`);
+  return res.json(); // No validation, assumes API returns correct shape
+}
+```
+This approach separates type definition from validation logic, risking inconsistencies.
+</example>

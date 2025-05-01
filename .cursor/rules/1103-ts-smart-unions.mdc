@@ -1,0 +1,65 @@
+---
+description: Use discriminated unions with literal type fields for variant states instead of boolean flags or simple enums
+globs: **/*.ts,**/*.tsx
+alwaysApply: false
+---
+# Smart Unions (Discriminated Union Types)
+
+## Context
+- When modeling UI states, API responses, or any domain with multiple distinct variants
+- When using TypeScript's strict mode to enforce compile-time exhaustiveness checking
+
+## Requirements
+- Define a union of objects with a common discriminant property (e.g., `status`, `type`, `kind`)
+- Handle all variants with switch/if statements with exhaustiveness checking
+- Include a default case with never type assertion to catch unhandled variants
+
+## Examples
+<example>
+```ts
+// Define union types for loading state:
+type LoadState = 
+  | { status: "loading" }
+  | { status: "success"; data: Result }
+  | { status: "error"; error: Error };
+
+// Usage with exhaustive check:
+function render(state: LoadState) {
+  switch (state.status) {
+    case "loading": return "Loading...";
+    case "success": return `Result: ${state.data}`;
+    case "error":   return `Error: ${state.error.message}`;
+    default: 
+      // Ensures no missing case:
+      const _exhaustive: never = state;
+      throw new Error("Unhandled state type");
+  }
+}
+```
+This pattern ensures all state variants are handled at compile time.
+</example>
+
+<example type="invalid">
+```ts
+// Using boolean flags (anti-pattern)
+type LoadingState = {
+  isLoading: boolean;
+  isError: boolean;
+  data?: Result;
+  error?: Error;
+};
+
+function render(state: LoadingState) {
+  if (state.isLoading) {
+    return "Loading...";
+  } else if (state.isError) {
+    return `Error: ${state.error!.message}`;
+  } else {
+    return `Result: ${state.data}`;
+  }
+}
+```
+This approach allows invalid states (both isLoading and isError true) and requires non-null assertions.
+</example>
+
+**When to Apply:** Any time component or logic has multiple modes (e.g. form states, fetch states, UI modes). Favor this pattern over multiple boolean props or a single enum without exhaustive checks.

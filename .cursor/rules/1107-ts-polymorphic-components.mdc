@@ -1,0 +1,64 @@
+---
+description: Build flexible React components using the as prop pattern with proper TypeScript generics
+globs: **/*.ts,**/*.tsx
+alwaysApply: false
+---
+# Polymorphic Component with `as` Prop
+
+## Context
+- When building component libraries or design systems
+- When a component needs to render as different HTML elements or custom components
+- When you need to maintain proper prop types for each rendered element variant
+
+## Requirements
+- Define components as generic over a JSX element type `T extends React.ElementType`
+- Include an `as?: T` prop to specify the rendered element
+- Use ComponentPropsWithoutRef<T> to preserve proper prop types
+- Omit conflicting props between component props and element props
+
+## Examples
+<example>
+```tsx
+import { ComponentPropsWithoutRef, ElementType, ReactNode } from 'react';
+
+type AsProp<T extends ElementType> = { as?: T };
+
+type PolymorphicProps<T extends ElementType, OwnProps = {}> = 
+  AsProp<T> & OwnProps & Omit<ComponentPropsWithoutRef<T>, keyof OwnProps | 'as'>;
+
+const Button = <T extends ElementType = 'button'>({
+  as,
+  children,
+  variant = 'primary',
+  ...rest
+}: PolymorphicProps<T, { variant?: 'primary' | 'secondary'; children: ReactNode }>) => {
+  const Component = as || 'button';
+  return <Component className={`btn ${variant}`} {...rest}>{children}</Component>;
+};
+
+// Usage examples:
+<Button onClick={(e) => console.log(e.currentTarget)}>Click me</Button>
+<Button as="a" href="/home">Home</Button>
+<Button as={Link} to="/about">About</Button>
+```
+This approach allows one component to render as different elements with correct typing.
+</example>
+
+<example type="invalid">
+```tsx
+// Non-polymorphic approach with separate components:
+const Button = (props: ButtonProps) => {
+  return <button className="btn" {...props} />;
+};
+
+const LinkButton = (props: LinkButtonProps) => {
+  return <a className="btn" {...props} />;
+};
+
+// Or component with loose typing:
+const Button = ({ as: Component = 'button', ...props }: any) => {
+  return <Component className="btn" {...props} />;
+};
+```
+This either duplicates code or loses type safety for props specific to the rendered element.
+</example>
