@@ -1,0 +1,80 @@
+---
+description: Encourage the use of React Suspense and Next.js loading.tsx for progressive rendering.
+globs: **/*.ts,**/*.tsx
+alwaysApply: false
+---
+# Progressive Rendering with Suspense & Loading UI
+
+## Context
+- React Suspense and loading.tsx files enable streaming UI updates
+- This improves perceived performance by showing placeholders while content loads
+
+## Requirements
+- Use `loading.tsx` files in route segments to provide automatic loading states
+- Wrap slow-loading components in `<Suspense fallback={...}>` to keep the UI responsive
+- Create `error.tsx` files to handle errors gracefully in each route segment
+- Design meaningful loading indicators (spinners, skeletons) in Suspense fallbacks
+- Avoid blocking the entire UI on slow data fetches
+
+## Examples
+
+<example>
+// Good: Using Suspense for independent component loading
+// app/dashboard/page.tsx
+import { Suspense } from 'react';
+import PostsList from './posts-list';     // async component fetching posts
+import WeatherWidget from './weather';    // another async component
+
+export default function DashboardPage() {
+  return (
+    <section>
+      <h1>Dashboard</h1>
+      <Suspense fallback={<p>Loading latest posts...</p>}>
+        <PostsList />
+      </Suspense>
+      <Suspense fallback={<p>Loading weather...</p>}>
+        <WeatherWidget />
+      </Suspense>
+    </section>
+  );
+}
+
+// app/dashboard/loading.tsx - Automatic loading UI for the route
+export default function Loading() {
+  return <div className="spinner">Loading Dashboard...</div>;
+}
+
+// app/dashboard/error.tsx - Error boundary for the route
+export default function ErrorState({ 
+  error, 
+  reset 
+}: { 
+  error: Error; 
+  reset: () => void 
+}) {
+  return (
+    <div>
+      <p>Something went wrong: {error.message}</p>
+      <button onClick={reset}>Retry</button>
+    </div>
+  );
+}
+</example>
+
+<example type="invalid">
+// Bad: Blocking render on multiple slow fetches
+// app/dashboard/page.tsx
+export default async function DashboardPage() {
+  // Both fetches block rendering until they complete
+  const posts = await fetch('/api/posts').then(r => r.json());
+  const weather = await fetch('/api/weather').then(r => r.json());
+  
+  return (
+    <section>
+      <h1>Dashboard</h1>
+      <PostsList posts={posts} />
+      <WeatherWidget weather={weather} />
+    </section>
+  );
+}
+</example>

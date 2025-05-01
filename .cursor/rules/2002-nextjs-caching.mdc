@@ -1,0 +1,56 @@
+---
+description: Guide Next.js App Router data caching strategies (static vs dynamic) and revalidation after mutations.
+globs: **/*.ts,**/*.tsx
+alwaysApply: false
+---
+# Smart Caching and Revalidation
+
+## Context
+- Next.js App Router provides powerful data caching mechanisms by default
+- Without proper revalidation, UIs can become stale after data mutations
+
+## Requirements
+- By default, fetches in server components are cached statically
+- Use `cache: 'no-store'` or `export const dynamic = 'force-dynamic'` for truly dynamic content
+- Use `export const revalidate = X` or `fetch(..., { next: { revalidate: X }})` for ISR
+- Always call `revalidatePath()` or `revalidateTag()` after mutating data
+- Choose revalidation strategies based on data freshness requirements
+
+## Examples
+
+<example>
+// Good: Smart caching with ISR and revalidation
+// app/blog/page.tsx – static generation with revalidate
+export const revalidate = 60;  // regenerate page at most every 60 seconds
+
+export default async function BlogPage() {
+  const posts = await fetch('https://cms.example.com/posts', { 
+    next: { revalidate: 60, tags: ['posts'] } 
+  }).then(res => res.json());
+  return <PostList posts={posts} />;
+}
+
+// In a server action after updating posts:
+import { revalidateTag } from 'next/cache';
+
+export async function updatePost(data: FormData) {
+  // Update post in database
+  await db.post.update({/*...*/});
+  
+  // Revalidate cached data
+  revalidateTag('posts');
+}
+</example>
+
+<example type="invalid">
+// Bad: Missing revalidation after mutation
+// app/actions.ts
+'use server';
+export async function createComment(data: FormData) {
+  const comment = data.get('comment');
+  await db.comment.create({ data: { text: comment } });
+  
+  // Missing revalidation! UI will show stale data
+  // Should add: revalidatePath('/comments');
+}
+</example>

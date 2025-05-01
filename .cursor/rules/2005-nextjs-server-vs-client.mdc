@@ -1,0 +1,78 @@
+---
+description: Default to Server Components and isolate "use client" components for interactive parts only.
+globs: **/*.ts,**/*.tsx
+alwaysApply: false
+---
+# Minimal Client-side Footprint (Use Server Components by Default)
+
+## Context
+- Next.js App Router defaults to Server Components
+- Client Components increase bundle size and should be used sparingly
+
+## Requirements
+- Default to using Server Components (no "use client" directive) for most UI
+- Only add "use client" to components that need:
+  - React state or hooks
+  - Browser-only APIs (window, document)
+  - Event handlers (onClick, onChange)
+  - Interactive UI elements (forms, popups)
+- Keep client components small and focused on interactivity
+- Never mark an entire page or layout as client just for small interactive features
+- Client components can render server component children (not vice versa)
+
+## Examples
+
+<example>
+// Good: Server component with minimal client interactive parts
+// app/dashboard/page.tsx - Server Component
+import { LikeButton } from '@/components/like-button'; // Client Component
+import { fetchPosts } from '@/lib/data';
+
+export default async function PostsPage() {
+  const posts = await fetchPosts(); // Server-side data fetching
+  
+  return (
+    <div>
+      <h1>Latest Posts</h1>
+      <ul>
+        {posts.map(post => (
+          <li key={post.id}>
+            {post.title}
+            <LikeButton postId={post.id} /> {/* Interactive client island */}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+// components/like-button.tsx - Client Component for interactivity
+'use client';
+import { useState } from 'react';
+
+export function LikeButton({ postId }: { postId: string }) {
+  const [liked, setLiked] = useState(false);
+  
+  return (
+    <button onClick={() => setLiked(!liked)}>
+      {liked ? '❤️' : '🤍'}
+    </button>
+  );
+}
+</example>
+
+<example type="invalid">
+// Bad: Unnecessary client component for non-interactive UI
+// app/about/page.tsx
+'use client'; // Unnecessary! This has no interactivity
+
+export default function AboutPage() {
+  return (
+    <div>
+      <h1>About Us</h1>
+      <p>We are a company dedicated to...</p>
+      {/* No state, no events, no browser APIs used */}
+    </div>
+  );
+}
+</example>

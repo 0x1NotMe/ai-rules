@@ -1,0 +1,38 @@
+---
+description: Avoid internal API fetches from Next.js server components – fetch directly or use server functions.
+globs: **/*.ts,**/*.tsx
+alwaysApply: false
+---
+# Direct Server-Side Data Fetching
+
+## Context
+- In Next.js App Router, server components can directly access data sources
+- Internal API calls create unnecessary network hops that slow performance
+
+## Requirements
+- Do **not** call internal API routes (e.g. `/api/*`) from within Server Components
+- Instead, call the underlying data logic or external API directly in the Server Component
+- For database access, import your ORM/SDK directly in server components
+
+## Examples
+
+<example>
+// Good: Direct data fetching in a server component
+// app/products/page.tsx - Server Component
+import { listProducts } from '@/lib/products';  // direct DB/SDK call
+
+export default async function ProductsPage() {
+  const products = await listProducts();  // no internal fetch; direct call
+  return <ul>{products.map(p => <li key={p.id}>{p.name}</li>)}</ul>;
+}
+</example>
+
+<example type="invalid">
+// Bad: Unnecessary internal API call
+// app/products/page.tsx - Server Component
+export default async function ProductsPage() {
+  // Don't do this! Creates an extra network hop
+  const products = await fetch('/api/products').then(res => res.json());
+  return <ul>{products.map(p => <li key={p.id}>{p.name}</li>)}</ul>;
+}
+</example>

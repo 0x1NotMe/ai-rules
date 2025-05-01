@@ -1,0 +1,66 @@
+---
+description: Use Next.js Server Actions for form submissions and mutations instead of custom API endpoints.
+globs: **/*.ts,**/*.tsx
+alwaysApply: false
+---
+# Server Actions for Form Submissions and Mutations
+
+## Context
+- Server Actions allow server-side functions to be directly called from client components
+- This eliminates the need for many API routes and simplifies data mutations
+
+## Requirements
+- Prefer **Server Actions** (using `'use server'` directives) for handling form data and mutations
+- Use `<form action={yourAction}>` to directly call a server function
+- Export server actions from dedicated files or mark individual functions with 'use server'
+- After mutations, revalidate necessary paths or tags to refresh stale data
+
+## Examples
+
+<example>
+// Good: Using Server Actions for form submission
+// app/actions.ts
+'use server';
+import { db } from '@/lib/db';
+import { revalidatePath } from 'next/cache';
+
+export async function saveUser(data: FormData) {
+  const name = data.get('name');
+  await db.user.create({ data: { name } });
+  revalidatePath('/users');
+}
+
+// app/profile/page.tsx (Server Component with Client Form)
+export default function ProfilePage() {
+  return (
+    <form action={saveUser}>
+      <input name="name" type="text" />
+      <button type="submit">Add User</button>
+    </form>
+  );
+}
+</example>
+
+<example type="invalid">
+// Bad: Using custom API endpoint for form handling
+// app/profile/page.tsx
+'use client';
+export default function ProfilePage() {
+  async function handleSubmit(e) {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    await fetch('/api/users', {
+      method: 'POST',
+      body: formData,
+    });
+    // Missing revalidation, UI won't update
+  }
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <input name="name" type="text" />
+      <button type="submit">Add User</button>
+    </form>
+  );
+}
+</example>

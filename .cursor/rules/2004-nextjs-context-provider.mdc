@@ -1,0 +1,76 @@
+---
+description: Enforce correct pattern for using React Context in Next.js App Router (client providers in layouts).
+globs: **/*.ts,**/*.tsx
+alwaysApply: false
+---
+# Context and Config via Providers
+
+## Context
+- React Context cannot be used directly in Server Components
+- Providers must be client components that wrap server component trees
+
+## Requirements
+- Define context providers as **Client Components** with `"use client"` directive
+- Place providers in layout files to supply context to all child components
+- Never use `createContext`/`useContext` inside Server Components
+- Keep provider components focused on managing state, not rendering UI
+- Use providers at the highest appropriate level to minimize client-side JavaScript
+
+## Examples
+
+<example>
+// Good: Context provider as a client component in layout
+// app/theme-provider.tsx
+'use client';
+import { createContext, useState, ReactNode } from 'react';
+
+export const ThemeContext = createContext({ 
+  theme: 'light', 
+  setTheme: (theme: string) => {} 
+});
+
+export default function ThemeProvider({ 
+  children 
+}: { 
+  children: ReactNode 
+}) {
+  const [theme, setTheme] = useState('light');
+  return (
+    <ThemeContext.Provider value={{ theme, setTheme }}>
+      {children}
+    </ThemeContext.Provider>
+  );
+}
+
+// app/layout.tsx - Server component using client provider
+import ThemeProvider from './theme-provider';
+
+export default function RootLayout({ 
+  children 
+}: { 
+  children: React.ReactNode 
+}) {
+  return (
+    <html>
+      <body>
+        <ThemeProvider>{children}</ThemeProvider>
+      </body>
+    </html>
+  );
+}
+</example>
+
+<example type="invalid">
+// Bad: Trying to use context directly in server component
+// app/page.tsx - Server Component
+import { createContext, useContext } from 'react';
+
+// This won't work! Context can't be created in server components
+const ServerContext = createContext(null);
+
+export default function Page() {
+  // This will error - useContext only works in client components
+  const value = useContext(ServerContext);
+  return <div>{value}</div>;
+}
+</example>
