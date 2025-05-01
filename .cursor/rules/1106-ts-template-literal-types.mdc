@@ -48,5 +48,3 @@ const route: Route = "/invalid/page"; // No type error
 ```
 This approach is either tedious and error-prone or allows invalid values to be used.
 </example>
-
-**Guideline:** Construct string types using template literals (e.g. `${Prefix}${Suffix}`) rather than using raw `string`
